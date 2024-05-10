@@ -32,7 +32,7 @@ async function run() {
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
     
   } catch (error) {
-    console.log("DOMMAGE"):
+    console.log("DOMMAGE");
     console.error("Error initializing data:", error);
     } 
 }
