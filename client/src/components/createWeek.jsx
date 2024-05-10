@@ -1,4 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { EventInfo } from './eventInfo';
+
 
 const months = [
 	"January",
@@ -24,11 +26,31 @@ const days = [
 	"Saturday"
 ];
 
-export const CreateWeek = ({calendarDate, events}) => {
-        const listIndex = Array.from({ length: 7 }, (_, i) => i);
-        console.log("Create Week", calendarDate)
-        let day = calendarDate.getDay();
+export const CreateWeek = ({calendarDate, events, DeleteEvent}) => {
+    const [showEventInfo, setShowEventInfo] = useState(false);
+    const [eventToShow, setEventToShow] = useState(null);
+    const listIndex = Array.from({ length: 7 }, (_, i) => i);
+    console.log("Create Week", calendarDate)
+    let day = calendarDate.getDay();
+
+    const toggleEventInfo = (event) => {
+        setShowEventInfo(!showEventInfo);
+        setEventToShow(event);
+    };
+
+    const closeEventInfo = () => {
+        setShowEventInfo(false);
+        setEventToShow(null); // Efface l'événement à afficher
+      };
+
+    const deleteEvent = () => {
+        setShowEventInfo(false);
+        DeleteEvent(eventToShow);
+        setEventToShow(null); // Efface l'événement à afficher
+      };
+
     return (<>
+    {showEventInfo && <EventInfo event={eventToShow} onClose={closeEventInfo} onDelete={deleteEvent}/>}
         {
             listIndex.map((i) => {
                 
@@ -88,11 +110,20 @@ export const CreateWeek = ({calendarDate, events}) => {
                                     newEventDivFlexGrow = `${endDate.getHours() - startDate.getHours()}`;
                                     flexAfDivFlexGrow = `${24 - endDate.getHours()}`;
                                 }
+                                let proxyDesc;
+                                let maxStringLength = Math.min(newEventDivFlexGrow * 25, 1000);
+                                if (event['description'].length > maxStringLength) {
+                                    // Si oui, garde les 50 premiers caractères et ajoute "..." à la fin
+                                    proxyDesc = event['description'].substring(0, maxStringLength) + "...";
+                                } else {
+                                    proxyDesc = event['description']
+                                }
                                 return (
                                 <div key={event.id} className="eventContainer">
                                     <div className="flexBfDiv" style={{flexGrow: flexBfDivFlexGrow}}></div>
-                                    <div className='EventDiv' style={{ backgroundColor: event['color'] || '#3992ff', flexGrow: newEventDivFlexGrow }} onDoubleClick={() => console.log("Event clicked")}>
+                                    <div className='EventDiv' style={{ backgroundColor: event['color'] || '#3992ff', flexGrow: newEventDivFlexGrow }} onDoubleClick={() => toggleEventInfo(event)}>
                                         <div className='eventTitle'>{event['name']}</div>
+                                        {eventsForDay.length === 1 && <div className='eventContent'><div className='eventDesc'>{proxyDesc}</div></div>}
                                     </div>
                                     <div className='flexAfDiv' style={{flexGrow: flexAfDivFlexGrow}}></div>
                                 </div>

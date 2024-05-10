@@ -72,6 +72,19 @@ export default function Root() {
 		setCalendarDate(newDate)
 	}
 
+	const handleDeleteEvent = async (event) => {
+		// Send the new event to the database through node.
+		setSessionUser(sessionUser.filter(e => e['id'] !== event['id']));
+		const data = await window.fetch('/api/deleteEvent', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(event),
+		});
+		
+	}
+
 	// Handles the "Next Week" button
 	const handleNextClick = () => {
 		const newDate = new Date(date);
@@ -80,7 +93,7 @@ export default function Root() {
 		document.getElementById("ActualMonth").textContent = `${months[newDate.getMonth()]} ${newDate.getFullYear()}`;
 		setCalendarDate(newDate)
 	}
-
+	
 	// Handles what happens when creating an event.
 	const handleSubmitNewEvent = async (event) => {
 		event.preventDefault()
@@ -94,7 +107,7 @@ export default function Root() {
 			"start": EventForm.startEvent.value,
 			"end": EventForm.endEvent.value,
 			"id": Math.random().toString(16).slice(2),
-			"color": colorPalette[Math.floor(Math.random() * colorPalette.length)],
+			"color": EventForm.eventColor.value,
 		}
 		// Pushes the new event directly to the list of event so I don't have to re-call the user's events from the DB.
 		// Updates the week with the new event.
@@ -184,7 +197,7 @@ export default function Root() {
 					<button onClick={handleNextClick}>Next</button>
 				</div>
 				<div id="mainview">
-					<CreateWeek calendarDate={date} events={sessionUser ? sessionUser : propEvents}/>
+					<CreateWeek calendarDate={date} events={sessionUser ? sessionUser : propEvents } DeleteEvent={handleDeleteEvent}/>
 				</div>
 			</div>
 		</>

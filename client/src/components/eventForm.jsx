@@ -1,11 +1,19 @@
 import React from 'react'
 
 export const EventForm = ({EventCreatorName, handleSubmitEvent}) => {
+    const colorPalette = [
+        "#264653",
+        "#2a9d8f",
+        "#e9c46a",
+        "#f4a261",
+        "#e76f51",
+        "#3992ff",
+    ]
   return (
     <div id="eventCreator">
-        <form name={EventCreatorName} onSubmit={handleSubmitEvent}>
+        <form className="EventForm" name={EventCreatorName} onSubmit={handleSubmitEvent}>
             <label>
-                Nom de l'événement:
+                Event name:
                 <input
                 name="nameEvent"
                 type="text"
@@ -21,7 +29,7 @@ export const EventForm = ({EventCreatorName, handleSubmitEvent}) => {
             </label>
             <br />
             <label>
-                Date de début:<br />
+                Start date:<br />
                 <input
                 name="startEvent"
                 type="datetime-local"
@@ -30,16 +38,29 @@ export const EventForm = ({EventCreatorName, handleSubmitEvent}) => {
             </label>
             <br />
             <label>
-                Date de fin:<br />
+                End date:<br />
                 <input
                 name="endEvent"
                 type="datetime-local"
                 required
                 />
             </label>
+            <br />  
+            <label>
+                Event color:
+                <div className="colorPicker">
+                    {
+                        colorPalette.map((color, i) => {
+                            return (
+                                <input key={color+"id"+String(i)} type="radio" id={`color${i}`} name="eventColor" className="eventColor" value={color} style={{backgroundColor: color}} />
+                            )
+                        }
+                    )}
+                </div>
+            </label>
             <br />
             <br />
-            <button type="submit">Créer l'événement</button>
+            <button type="submit">Create event</button>
         </form>
     </div>
     )

@@ -43,12 +43,40 @@ app.post('/api/newEvent', async function(req, res) {
   const eventData = req.body;
   await client.connect();
     const dbMain = client.db("test");
-    const collectionMain = dbMain.collection("main");
+    const collectionMain = dbMain.collection("Users");
     await collectionMain.updateOne(
       // Filtre pour trouver le document où ajouter l'utilisateur
-      { "Users": { $elemMatch: { "firstname": 'Raphael', "lastname": 'Greiner' } } },
+      { $elemMatch: { "firstname": 'Raphael', "lastname": 'Greiner' } },
       // Mise à jour en utilisant l'opérateur $push pour ajouter l'utilisateur à la liste "Users"
-      { $push: { "Users.$.events": eventData } }
+      { $push: { "events": eventData } }
+  );
+})
+
+// Delete event from database.
+app.post('/api/deleteEvent', async function(req, res) {
+  const eventData = req.body;
+  await client.connect();
+  const dbMain = client.db("test");
+  const collectionMain = dbMain.collection("Users");
+  collectionMain.updateOne(
+    { events: { $elemMatch: { "id": eventData['id'] } } },
+    { $pull: { events: { "id": eventData['id'] } } },
+    (err, result) => {
+        if (err) {
+            console.error('Erreur lors de la suppression de l\'événement :', err);
+            client.close();
+            return;
+        }
+
+        if (result.modifiedCount === 1) {
+            console.log('Événement supprimé avec succès');
+        } else {
+            console.log('L\'événement n\'a pas été trouvé ou n\'a pas été supprimé');
+        }
+
+        // Fermer la connexion
+        client.close();
+    }
   );
 })
 
@@ -56,9 +84,9 @@ app.post('/api/newEvent', async function(req, res) {
 app.get('/api/edt', async (_, res) => {
     await client.connect();
     const dbMain = client.db("test");
-    const collectionMain = dbMain.collection("main");
-    const matchingUser = await collectionMain.findOne({ "Users": { $elemMatch: { "firstname": 'Raphael', "lastname": 'Greiner' } } }, { projection: { "Users.$": 1 } });
-    const events = matchingUser.Users[0]?.events || [];
+    const collectionMain = dbMain.collection("Users");
+    const matchingUser = await collectionMain.findOne({ "firstname": 'Raphael', "lastname": 'Greiner' });
+    const events = matchingUser.events || [];
     res.send({
         msg: events,
     })
