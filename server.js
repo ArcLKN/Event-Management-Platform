@@ -37,32 +37,41 @@ app.use(express.json());
 
 app.use(express.static('client/dist'));
 
+// Add new event to database
+app.post('/api/newEvent', async function(req, res) {
+  const eventData = req.body;
+  await client.connect();
+    const dbMain = client.db("test");
+    const collectionMain = dbMain.collection("main");
+    await collectionMain.updateOne(
+      // Filtre pour trouver le document où ajouter l'utilisateur
+      { "Users": { $elemMatch: { "firstname": 'Raphael', "lastname": 'Greiner' } } },
+      // Mise à jour en utilisant l'opérateur $push pour ajouter l'utilisateur à la liste "Users"
+      { $push: { "Users.$.events": eventData } }
+  );
+})
+
+// Get user's events from database
 app.get('/api/edt', async (_, res) => {
     await client.connect();
     const dbMain = client.db("test");
     const collectionMain = dbMain.collection("main");
-    const cursor = collectionMain.find({})
-    let randUser = "User"+String(Math.floor(Math.random()*1000));
-    console.log(randUser);
-    collectionMain.updateOne(
-        // Filtre pour trouver le document où ajouter l'utilisateur
-        { },
-        // Mise à jour en utilisant l'opérateur $push pour ajouter l'utilisateur à la liste "Users"
-        { $push: { Users: randUser } }
-    );
+    const matchingUser = await collectionMain.findOne({ "Users": { $elemMatch: { "firstname": 'Raphael', "lastname": 'Greiner' } } }, { projection: { "Users.$": 1 } });
+    const events = matchingUser.Users[0]?.events || [];
     res.send({
-        msg: randUser,
+        msg: events,
     })
 })
 
 app.get('/api/init', async (_, res) => {
-    await client.connect();
-    const dbMain = client.db("test");
-    const collectionMain = dbMain.collection("main");
-    const cursor = collectionMain.find({})
-    let randUser = "User"+String(Math.floor(Math.random()*1000));
-    const document = await collectionMain.findOne({ Users: { $exists: true } });
-    res.send(document['Users'])
+  await client.connect();
+  const dbMain = client.db("test");
+  const collectionMain = dbMain.collection("main");
+  const matchingUser = await collectionMain.findOne({ "Users": { $elemMatch: { "firstname": 'Raphael', "lastname": 'Greiner' } } }, { projection: { "Users.$": 1 } });
+  const events = matchingUser.Users[0]?.events || [];
+  res.send({
+      msg: events,
+  })
 })
 
 app.get('/*', (_, res) => {
