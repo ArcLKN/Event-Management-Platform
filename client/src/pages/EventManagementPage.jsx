@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-//import weekDay from './component/weekDay';
+import { useEffect } from 'react';
 
 const months = [
 	"January",
@@ -27,29 +26,30 @@ const days = [
 
 const date = new Date();
 
-let propEvents = [
-	{
-		"id": 1,
-		"name": "Slavery",
-		"description": "Coding until we die.",
-		"start": "2024-05-09T19:34",
-		"end": "2024-05-09T23:40",
-	},
-    {
-		"id": 2,
-        "name": "Slavery 2",
-        "description": ".",
-        "start": "2024-01-07T12:34",
-        "end": "2024-05-01T14:40",
-    }
+// Colors used for the creation of events.
+// One is randomly chosen when creating an event.
+// Dev: give the possibility to the user to choose the colors through buttons.
+const colorPalette = [
+	"#264653",
+	"#2a9d8f",
+	"#e9c46a",
+	"#f4a261",
+	"#e76f51",
+	"#3992ff",
 ]
 
+// Main function
+// Render the table for the weeks, with the days and events.
 function Createweek(calendarDate) {
+	// Remove previous days when changing weeks.
 	document.querySelectorAll('[class="weekDayContainer"]').forEach((e) => e.remove());
+	// The date is relative to the position of the user.
 	let day = calendarDate.getDay();
 	for (let i = 0; i < 7; i++) {
 		let proxyDate = new Date(calendarDate);
+		// - day + i : so it always start with sunday, etc. Same order of days.
 		proxyDate.setDate(calendarDate.getDate() - day + i)
+		// Creating a bunch of div for day container.
 		let mainview = document.getElementById("mainview");
 		let newDayDiv = document.createElement("div");
 		newDayDiv.classList.add("weekDayContainer");
@@ -65,12 +65,13 @@ function Createweek(calendarDate) {
 		topDiv.appendChild(titleTopDiv);
 		newDayDiv.appendChild(bottomDiv);
 
-		if (!sessionUser) {return;}
+		if (!sessionUser) {continue;}
+		// Create the events by going through all of them.
 		for (let eachEvent in sessionUser) {
 			let thisEvent = sessionUser[eachEvent];
 			let startDate = new Date(thisEvent['start']);
 			let endDate = new Date(thisEvent['end']);
-
+			// Verify if the dates correspond to the proxyDate.
 			let isStartGood = (
 				startDate.getFullYear() < proxyDate.getFullYear() ||
 				startDate.getFullYear() == proxyDate.getFullYear() && startDate.getMonth() < proxyDate.getMonth() ||
@@ -81,7 +82,7 @@ function Createweek(calendarDate) {
 				proxyDate.getFullYear() == endDate.getFullYear() && proxyDate.getMonth() < endDate.getMonth() ||
 				proxyDate.getFullYear() == endDate.getFullYear() && proxyDate.getMonth() == endDate.getMonth() && proxyDate.getDate() <= endDate.getDate()
 			)
-			
+			// If it is, shows the event.
 			if ( isStartGood && isEndGood) {
 				//console.log("Show event", thisEvent['name'])
 				//console.log("At day", titleTopDiv.textContent)
@@ -94,12 +95,18 @@ function Createweek(calendarDate) {
 				let newEventDiv = document.createElement("div");
 				newEventDiv.setAttribute("id", "EventId"+thisEvent['id']);
 				newEventDiv.classList.add("EventDiv");
+				if (thisEvent['color']) {
+					newEventDiv.style.backgroundColor = thisEvent['color'];}
+				else {
+					newEventDiv.style.backgroundColor = "#3992ff";
+				}
 				bottomDiv.append(eventContainer);
 				eventContainer.append(flexBfDiv);
 				eventContainer.append(newEventDiv);
 				eventContainer.append(flexAfDiv);
 				//console.log(startDate, endDate)
-				console.log(titleTopDiv.textContent, isStartGood, isEndGood, proxyDate.getDate() < endDate.getDate())
+				//console.log(titleTopDiv.textContent, isStartGood, isEndGood, proxyDate.getDate() < endDate.getDate())
+				// Depending on the position of the day relative to the event end date and start date, the event container will have different flexGrow values to correctly be rendered.
 				if (
 					proxyDate.getFullYear() < endDate.getFullYear() ||
 					proxyDate.getFullYear() == endDate.getFullYear() && proxyDate.getMonth() < endDate.getMonth() ||
@@ -133,35 +140,41 @@ function Createweek(calendarDate) {
 			}
 		}
 	}
-	return null; // Ce composant ne rend rien visuellement
+	return null;
 }
 
+// Handles the "Previous Week" button by calling create week to delete the old week and starting another one with the updated date.
 const handlePreviousClick = () => {
     date.setDate(date.getDate() - 7);
 	document.getElementById("ActualMonth").textContent = `${months[date.getMonth()]} ${date.getFullYear()}`;
     Createweek(date);
 }
 
+// Handles the "Next Week" button
 const handleNextClick = () => {
     date.setDate(date.getDate() + 7);
 	document.getElementById("ActualMonth").textContent = `${months[date.getMonth()]} ${date.getFullYear()}`;
     Createweek(date);
 }
 
+// Handles what happens when creating an event.
 const handleSubmitNewEvent = async () => {
 	event.preventDefault()
-	console.log("FORM")
 	let EventForm = document.forms["newEvent"];
+	// Values of the new event.
 	let formValues = {
 		"name": EventForm.nameEvent.value,
 		"description": EventForm.descEvent.value,
 		"start": EventForm.startEvent.value,
 		"end": EventForm.endEvent.value,
 		"id": Math.floor(Math.random()*1000),
+		"color": colorPalette[Math.floor(Math.random() * colorPalette.length)],
 	}
+	// Pushes the new event directly to the list of event so I don't have to re-call the user's events from the DB.
 	sessionUser.push(formValues)
-	console.log(sessionUser);
+	// Updates the week with the new event.
 	Createweek(date);
+	// Send the new event to the database through node.
 	await window.fetch('/api/newEvent', {
 		method: 'POST',
 		headers: {
@@ -175,35 +188,35 @@ let sessionUser = null;
 
 export default function Root() {
 
-		const handleClick = async () => {
-				console.log("Click");
-				let nameList = document.getElementById("list");
-				let newElement = document.createElement("li")
-				let newA = document.createElement("a");
-				const data = await window.fetch('/api/edt')
-				const json = await data.json()
-				console.log(json);
-		}
+	// Handles the Test Button action.
+	// Do nothing.
+	const handleClick = async () => {
+			const data = await window.fetch('/api/edt')
+			const json = await data.json()
+			console.log(json);
+	}
 
-		useEffect(() => {
-			const initData = async () => {
-				try {
-					const response = await window.fetch('/api/edt');
-					const json = await response.json();
-					console.log("INIT JSON", json);
-					if (!json) {return;}
-					sessionUser = json['msg'];
-					console.log("Session User", sessionUser);
-					Createweek(date);
-				} catch (error) {
-					console.error("Error fetching data:", error);
-				}
-			};
-			initData();
-			
-			}, []); // Le tableau vide signifie que useEffect s'exécute une seule fois après le montage du composant
+	// Calls this function when starting the page.
+	// Defines the user events by fetching them through node and the mongoDB database.
+	useEffect(() => {
+		const initData = async () => {
+			try {
+				const response = await window.fetch('/api/edt');
+				const json = await response.json();
+				console.log("INIT JSON", json);
+				if (!json) {return;}
+				sessionUser = json['msg'];
+				console.log("Session User", sessionUser);
+				Createweek(date);
+			} catch (error) {
+				console.error("Error fetching data:", error);
+			}
+		};
+		initData();
 		
-
+		}, []); // Le tableau vide signifie que useEffect s'exécute une seule fois après le montage du composant
+		
+		// Base HTML
 		return (
 			<>
 				<div id="sidebar">

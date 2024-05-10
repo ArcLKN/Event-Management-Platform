@@ -18,6 +18,7 @@ const client = new MongoClient(uri, {
   }
 });
 
+// See if connexion to db works.
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
@@ -37,7 +38,7 @@ app.use(express.json());
 
 app.use(express.static('client/dist'));
 
-// Add new event to database
+// Add new event to database.
 app.post('/api/newEvent', async function(req, res) {
   const eventData = req.body;
   await client.connect();
@@ -51,7 +52,7 @@ app.post('/api/newEvent', async function(req, res) {
   );
 })
 
-// Get user's events from database
+// Get user's events from database.
 app.get('/api/edt', async (_, res) => {
     await client.connect();
     const dbMain = client.db("test");
@@ -63,21 +64,10 @@ app.get('/api/edt', async (_, res) => {
     })
 })
 
-app.get('/api/init', async (_, res) => {
-  await client.connect();
-  const dbMain = client.db("test");
-  const collectionMain = dbMain.collection("main");
-  const matchingUser = await collectionMain.findOne({ "Users": { $elemMatch: { "firstname": 'Raphael', "lastname": 'Greiner' } } }, { projection: { "Users.$": 1 } });
-  const events = matchingUser.Users[0]?.events || [];
-  res.send({
-      msg: events,
-  })
-})
-
 app.get('/*', (_, res) => {
     res.sendFile(path.join(__dirname, './client/dist/index.html'))
 })
 
 app.listen(PORT, () => {
-    console.log(`Le serveur est lancé sur le port: ${PORT}`);
+    console.log(`Server is on port: ${PORT}`);
 })
