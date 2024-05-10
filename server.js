@@ -52,7 +52,7 @@ app.post('/api/newEvent', async function(req, res) {
     const collectionMain = dbMain.collection("Users");
     await collectionMain.updateOne(
       // Filtre pour trouver le document où ajouter l'utilisateur
-      { $elemMatch: { "firstname": 'Raphael', "lastname": 'Greiner' } },
+      { "firstname": 'Raphael', "lastname": 'Greiner' },
       // Mise à jour en utilisant l'opérateur $push pour ajouter l'utilisateur à la liste "Users"
       { $push: { "events": eventData } }
   );
