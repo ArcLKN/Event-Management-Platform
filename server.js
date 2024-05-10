@@ -8,7 +8,10 @@ const MongoDbPassword = process.env.MONGOPASSWORD;
 const app = express();
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
+
 const uri = `mongodb+srv://raphaelg0:${MongoDbPassword}@cluster0.objvoj1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
+
+console.log("Will create a MongoClient whatever that is!")
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
@@ -17,6 +20,7 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
+console.log("MongoDB password retrieved from environment variables:", MongoDbPassword);
 
 // See if connexion to db works.
 async function run() {
@@ -28,9 +32,11 @@ async function run() {
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
     
   } catch (error) {
+    console.log("DOMMAGE"):
     console.error("Error initializing data:", error);
     } 
 }
+console.log("Trying to connect to MongoDB");
 run().catch(console.dir);
 
 
