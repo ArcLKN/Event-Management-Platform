@@ -40,23 +40,6 @@ const propEvents =  [{
 	"id": "1237652"
 }]
 
-function modifyEvent(eventId) {
-	console.log("TEST MODIFY")
-	let modifyModal = document.createElement("div");
-	modifyModal.classList.add("modify-modal");
-	let modifyModalContent = document.createElement("div");
-	modifyModal.classList.add("modify-modal-content");
-	let rootDiv = document.getElementById("root");
-	rootDiv.appendChild(modifyModal);
-	modifyModal.appendChild(modifyModalContent);
-
-	const reactElement = <EventCreator EventCreatorName={'modifyEvent'} />;
-  	ReactDOM.render(reactElement, modifyModalContent);
-
-	let EventForm = document.forms["modifyEvent"];
-	console.log(EventForm)
-}
-
 export default function Root() {
 
 	const [date, setCalendarDate] = useState(new Date());
@@ -67,7 +50,6 @@ export default function Root() {
 		const newDate = new Date(date);
 		newDate.setDate(date.getDate() - 7);
 		date.setDate(newDate);
-		console.log(`${months[newDate.getMonth()]} ${newDate.getFullYear()}`)
 		document.getElementById("ActualMonth").textContent = `${months[newDate.getMonth()]} ${newDate.getFullYear()}`;
 		setCalendarDate(newDate)
 	}
@@ -99,8 +81,6 @@ export default function Root() {
 		event.preventDefault()
 		let EventForm = document.forms["newEvent"];
 		// Values of the new event.
-		console.log("Forms", document.forms)
-		console.log(EventForm)
 		let formValues = {
 			"name": EventForm.nameEvent.value,
 			"description": EventForm.descEvent.value,
@@ -127,17 +107,6 @@ export default function Root() {
 		});
 	}
 
-
-	// Handles the Test Button action.
-	// Do nothing.
-	/*
-	const handleClick = async () => {
-			const data = await window.fetch('/api/edt')
-			const json = await data.json()
-			console.log(json);
-	}
-	*/
-
 	// Calls this function when starting the page.
 	// Defines the user events by fetching them through node and the mongoDB database.
 	useEffect(() => {
@@ -145,12 +114,10 @@ export default function Root() {
 			try {
 				const response = await window.fetch('/api/edt');
 				const json = await response.json();
-				console.log("INIT JSON", json);
 				if (!json) {
 					setSessionUser(propEvents);
 					return;}
 				setSessionUser(json['msg']);
-				console.log("Session User", sessionUser);
 			} catch (error) {
 				console.error("Error fetching data:");
 			}

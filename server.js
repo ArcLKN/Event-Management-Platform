@@ -3,13 +3,13 @@ const path = require('path');
 require('dotenv').config()
 
 const PORT = process.env.PORT || 5000;
-const MongoDbPassword = process.env.MONGOPASSWORD;
+const mongoUri = process.env.MONGOURI;
 
 const app = express();
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
-const uri = `mongodb+srv://raphaelg0:${MongoDbPassword}@cluster0.objvoj1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
+const uri = mongoUri;
 
 console.log("Will create a MongoClient whatever that is!")
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -20,7 +20,6 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
-console.log("MongoDB password retrieved from environment variables:", MongoDbPassword);
 
 // See if connexion to db works.
 async function run() {
@@ -32,7 +31,6 @@ async function run() {
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
     
   } catch (error) {
-    console.log("DOMMAGE");
     console.error("Error initializing data:", error);
     } 
 }
@@ -69,17 +67,10 @@ app.post('/api/deleteEvent', async function(req, res) {
     { $pull: { events: { "id": eventData['id'] } } },
     (err, result) => {
         if (err) {
-            console.error('Erreur lors de la suppression de l\'événement :', err);
+            console.error('Error during the deletion of event:', err);
             client.close();
             return;
         }
-
-        if (result.modifiedCount === 1) {
-            console.log('Événement supprimé avec succès');
-        } else {
-            console.log('L\'événement n\'a pas été trouvé ou n\'a pas été supprimé');
-        }
-
         // Fermer la connexion
         client.close();
     }

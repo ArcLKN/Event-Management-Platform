@@ -30,7 +30,6 @@ export const CreateWeek = ({calendarDate, events, DeleteEvent}) => {
     const [showEventInfo, setShowEventInfo] = useState(false);
     const [eventToShow, setEventToShow] = useState(null);
     const listIndex = Array.from({ length: 7 }, (_, i) => i);
-    console.log("Create Week", calendarDate)
     let day = calendarDate.getDay();
 
     const toggleEventInfo = (event) => {
