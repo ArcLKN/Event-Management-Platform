@@ -1,5 +1,5 @@
 # Event Management Platform
-A platform for managing events, allowing users to create, organize, and attend various events.
+A public platform for managing events, allowing users to create, view, and delete various events created by everybody.
 ## Installation
 To install the Event Management Platform, follow these steps:
 
