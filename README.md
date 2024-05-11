@@ -5,7 +5,7 @@ To install the Event Management Platform, follow these steps:
 
 1. Clone the repository to your local machine:
 ```shell
-git clone https://github.com/yourusername/event-management-platform.git
+git clone https://github.com/ArcLKN/Event-Management-Platform.git
 ```
 
 2. Navigate to the project directory:
