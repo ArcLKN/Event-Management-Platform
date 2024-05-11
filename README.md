@@ -31,7 +31,13 @@ npm start
 ## Usage
 Once the server is running, you can access the platform by navigating to http://localhost:7000 in your web browser.
 
-##Configuration
+### Functionalities
+* You can view a calendar with your events.
+* Click on previous and next to access the different weeks.
+* Create events on the left sidebar.
+* Double click on an event to get infos on it.
+
+## Configuration
 The Event Management Platform requires the following environment variables to be set:
 ```js
 PORT: // The port on which the server will run. By default: 7000.
